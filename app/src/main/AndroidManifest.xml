@@ -12,10 +12,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MultimarApp">
         <activity
-            android:name=".MainActivity"
+            android:name=".NotificacionesActivity"
             android:exported="false" />
         <activity
             android:name=".LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".InicioActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
