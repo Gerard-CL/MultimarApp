@@ -12,6 +12,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MultimarApp">
         <activity
+            android:name=".PerfilActivity"
+            android:exported="false" />
+        <activity
+            android:name=".HistorialActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EnviosActivity"
+            android:exported="false" />
+        <activity
             android:name=".NotificacionesActivity"
             android:exported="false" />
         <activity

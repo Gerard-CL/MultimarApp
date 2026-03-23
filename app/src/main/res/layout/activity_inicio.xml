@@ -163,7 +163,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_envio" />
+                tools:listitem="@layout/item_envio_detalle" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
