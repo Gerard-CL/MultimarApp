@@ -25,9 +25,9 @@ class InicioActivity : AppCompatActivity() { // <-- El nombre de tu clase
 
         // 3. Creamos nuestra lista de datos
         val listaDeEnvios = listOf(
-            Envio("080205340", "Juan", "EEUU", "Enviado"),
-            Envio("080205340", "Juan", "EEUU", "En camino"),
-            Envio("080205340", "Juan", "EEUU", "Entregado")
+            Envio("080205340", "Juan", "EEUU", "Enviado", "En camino"),
+            Envio("080205340", "Juan", "EEUU", "En camino", "En camino"),
+            Envio("080205340", "Juan", "EEUU", "Entregado", "En camino")
                                   )
 
         // 4. Se lo pasamos al Adaptador
