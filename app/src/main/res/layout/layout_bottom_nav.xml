@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bottomNavContainer"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    android:background="@android:color/white"
+    android:elevation="16dp"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:id="@+id/navInicio"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:clickable="true"
+        android:focusable="true">
+
+        <View
+            android:id="@+id/indicatorInicio"
+            android:layout_width="50dp"
+            android:layout_height="4dp"
+            android:background="@android:color/transparent"
+            android:layout_marginBottom="10dp"/>
+
+        <ImageView
+            android:id="@+id/iconInicio"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_home"
+            app:tint="@color/text_dark"/>
+
+        <TextView
+            android:id="@+id/tvInicio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Inicio"
+            android:textColor="@color/text_dark"
+            android:textSize="12sp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/navEnvios"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:clickable="true"
+        android:focusable="true">
+
+        <View
+            android:id="@+id/indicatorEnvios"
+            android:layout_width="50dp"
+            android:layout_height="4dp"
+            android:background="@android:color/transparent"
+            android:layout_marginBottom="10dp"/>
+
+        <ImageView
+            android:id="@+id/iconEnvios"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_box"
+            app:tint="@color/text_dark"/>
+
+        <TextView
+            android:id="@+id/tvEnvios"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Envíos"
+            android:textColor="@color/text_dark"
+            android:textSize="12sp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/navJuego"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:clickable="true"
+        android:focusable="true">
+
+        <View
+            android:id="@+id/indicatorJuego"
+            android:layout_width="50dp"
+            android:layout_height="4dp"
+            android:background="@android:color/transparent"
+            android:layout_marginBottom="10dp"/>
+
+        <ImageView
+            android:id="@+id/iconJuego"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_game"
+            app:tint="@color/text_dark"/>
+
+        <TextView
+            android:id="@+id/tvJuego"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Juego"
+            android:textColor="@color/text_dark"
+            android:textSize="12sp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/navPerfil"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:clickable="true"
+        android:focusable="true">
+
+        <View
+            android:id="@+id/indicatorPerfil"
+            android:layout_width="50dp"
+            android:layout_height="4dp"
+            android:background="@android:color/transparent"
+            android:layout_marginBottom="10dp"/>
+
+        <ImageView
+            android:id="@+id/iconPerfil"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_profile"
+            app:tint="@color/text_dark"/>
+
+        <TextView
+            android:id="@+id/tvPerfil"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Perfil"
+            android:textColor="@color/text_dark"
+            android:textSize="12sp"/>
+    </LinearLayout>
+
+</LinearLayout>

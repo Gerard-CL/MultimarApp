@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="white">#FFFFFFFF</color><color name="navy_blue">#0A1D37</color>
+    <color name="bg_light">#F0F4F8</color>
+    <color name="btn_blue">#8DBBE0</color>
+    <color name="text_dark">#1A1A1A</color>
+
+    <color name="status_shipped_bg">#D4F0D5</color>
+    <color name="status_shipped_text">#4CAF50</color>
+
+    <color name="status_transit_bg">#FFF0D4</color>
+    <color name="status_transit_text">#FF9800</color>
+
+    <color name="status_delivered_bg">#BCE0FD</color>
+    <color name="status_delivered_text">#64B5F6</color>
+    <color name="text_red">#FF4D4D</color>
+    <color name="btn_green">#66C87C</color>
+    <color name="pill_bg">#E0E0E0</color>
+
 </resources>
