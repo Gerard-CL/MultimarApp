@@ -179,52 +179,29 @@
                         android:textStyle="bold"
                         android:layout_marginBottom="16dp"/>
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/menuIdioma"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="#F0F4F8"
-                        android:padding="12dp"
-                        android:clipToPadding="false">
+                        android:hint="Selecciona tu idioma"
+                        app:boxBackgroundColor="@android:color/white"
+                        app:boxCornerRadiusBottomEnd="8dp"
+                        app:boxCornerRadiusBottomStart="8dp"
+                        app:boxCornerRadiusTopEnd="8dp"
+                        app:boxCornerRadiusTopStart="8dp"
+                        app:startIconTint="@color/navy_blue">
 
-                        <ImageView
-                            android:id="@+id/ivGlobePreferencias"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:tint="@color/navy_blue" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <AutoCompleteTextView
+                            android:id="@+id/autoCompleteIdioma"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:text="Idioma"
-                            android:textColor="@color/navy_blue"
-                            app:layout_constraintBottom_toBottomOf="@+id/ivGlobePreferencias"
-                            app:layout_constraintStart_toEndOf="@+id/ivGlobePreferencias"
-                            app:layout_constraintTop_toTopOf="@+id/ivGlobePreferencias" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="8dp"
+                            android:inputType="none"
+                            android:padding="16dp"
                             android:text="Español"
-                            android:textColor="@color/navy_blue"
-                            android:textStyle="bold"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@+id/ivPencilPreferencias"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            android:textColor="@color/text_dark" />
 
-                        <ImageView
-                            android:id="@+id/ivPencilPreferencias"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:tint="@color/navy_blue" />
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

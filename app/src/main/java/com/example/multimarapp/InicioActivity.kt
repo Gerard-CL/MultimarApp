@@ -47,7 +47,6 @@ class InicioActivity : AppCompatActivity() { // <-- El nombre de tu clase
 
         // 1. Buscamos el botón de "Envíos" en el menú inferior por su ID
         val navEnvios = findViewById<LinearLayout>(R.id.navEnvios)
-
         navEnvios.setOnClickListener {
             val intent = Intent(this, EnviosActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT

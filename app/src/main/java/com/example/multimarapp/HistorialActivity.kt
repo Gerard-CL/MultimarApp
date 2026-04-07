@@ -16,6 +16,7 @@ class HistorialActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_historial)
 
+        // Apagamos todas las barritas
         findViewById<View>(R.id.indicatorInicio).setBackgroundResource(android.R.color.transparent)
         findViewById<View>(R.id.indicatorJuego).setBackgroundResource(android.R.color.transparent)
         findViewById<View>(R.id.indicatorPerfil).setBackgroundResource(android.R.color.transparent)
