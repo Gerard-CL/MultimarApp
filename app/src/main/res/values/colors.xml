@@ -18,4 +18,20 @@
     <color name="btn_green">#66C87C</color>
     <color name="pill_bg">#E0E0E0</color>
 
+    <color name="header_bg">#00213B</color> <color name="screen_bg">#EDF2F6</color>
+    <color name="card_preparacion_border">#F2994A</color> <color name="card_preparacion_text">#F2994A</color>
+    <color name="card_transito_border">#56CCF2</color> <color name="card_transito_text">#56CCF2</color>
+    <color name="card_completado_border">#27AE60</color> <color name="card_completado_text">#27AE60</color>
+
+    <color name="alert_bg">#FFED8A</color>
+
+    <color name="text_gray">#4A4A4A</color>
+
+    <color name="search_bg">#E2E8F0</color>
+    <color name="filter_bg">#93C5FD</color> <color name="status_prep_bg">#FEF3C7</color>
+    <color name="status_prep_text">#F59E0B</color>
+    <color name="status_trans_bg">#DBEAFE</color>
+    <color name="status_trans_text">#3B82F6</color>
+    <color name="status_comp_bg">#D1FAE5</color>
+    <color name="status_comp_text">#10B981</color>
 </resources>
