@@ -34,4 +34,8 @@
     <color name="status_trans_text">#3B82F6</color>
     <color name="status_comp_bg">#D1FAE5</color>
     <color name="status_comp_text">#10B981</color>
+
+    <color name="track_green">#4CAF50</color>
+    <color name="track_blue">#90CAF9</color>
+    <color name="track_grey">#E0E0E0</color>
 </resources>
