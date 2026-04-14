@@ -6,7 +6,7 @@ interface ApiService {
     @GET("api/ofertes/Recente")
     suspend fun getPropuestaReciente(): Propuesta
 
-    @GET("api/ofertes/Resumen") // <-- ajusta la ruta a la de tu API
+    @GET("api/ofertes/Resumen")
     suspend fun getPropuestas(): List<Propuesta>
 }
 
