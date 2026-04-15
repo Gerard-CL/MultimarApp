@@ -125,6 +125,7 @@
                             app:layout_constraintTop_toTopOf="@+id/tvTotalLabel" />
 
                         <TextView
+                            android:id="@+id/tvFecha"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Fecha: 27/02/2026"
