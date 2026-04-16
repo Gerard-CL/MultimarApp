@@ -1,43 +1,73 @@
 package com.example.multimarapp
 
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.example.multimarapp.network.LoginRequest
+import com.example.multimarapp.network.RetrofitClient
+import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_login) // Asegúrate de que este es tu XML de login
 
-        // 1. CONEXIÓN DEL ARCHIVO COMPLETO:
-        // "R.layout.activity_login" debe ser el nombre exacto de tu archivo XML
-        setContentView(R.layout.activity_login)
-
-        // 2. CONEXIÓN DE LOS ELEMENTOS (Vistas):
-        // Buscamos los elementos por el ID que les dimos en el XML
-        val etUsername = findViewById<EditText>(R.id.et_username)
+        // 1. Enlazamos las vistas de tu XML con el código Kotlin
+        val etEmail = findViewById<EditText>(R.id.et_username)
         val etPassword = findViewById<EditText>(R.id.et_password)
-        val btnLogin = findViewById<Button>(R.id.btn_login)
+        val btnEntrar = findViewById<Button>(R.id.btn_login)
 
-        // 3. DARLE FUNCIONALIDAD AL BOTÓN:
-        btnLogin.setOnClickListener {
-            // Obtenemos el texto que escribió el usuario
-            val usernameStr = etUsername.text.toString()
-            val passwordStr = etPassword.text.toString()
+        // 2. Le decimos qué hacer cuando se hace clic en el botón
+        btnEntrar.setOnClickListener {
+            // Recogemos el texto que ha escrito el usuario
+            val emailEscrito = etEmail.text.toString()
+            val passwordEscrito = etPassword.text.toString()
 
-            // Pequeña validación de ejemplo
-            if (usernameStr.isNotEmpty() && passwordStr.isNotEmpty()) {
-                // Si hay texto, mostramos un mensaje emergente
-                Toast.makeText(this, "Iniciando sesión como: $usernameStr", Toast.LENGTH_SHORT).show()
+            // Comprobamos que no estén vacíos
+            if (emailEscrito.isEmpty() || passwordEscrito.isEmpty()) {
+                Toast.makeText(this, "Por favor, rellena todos los campos", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener // Paramos la ejecución aquí
+            }
 
-                // AQUÍ IRÍA TU LÓGICA REAL: verificar en base de datos, ir a otra pantalla, etc.
+            // 3. Hacemos la llamada a la API en segundo plano (Corrutina)
+            // Usamos lifecycleScope para que no se bloquee la pantalla
+            lifecycleScope.launch {
+                try {
+                    // Preparamos el "sobre" de datos
+                    val request = LoginRequest(email = emailEscrito, password = passwordEscrito)
 
-            } else {
-                // Si está vacío, le avisamos al usuario
-                Toast.makeText(this, "Por favor, ingresa usuario y contraseña", Toast.LENGTH_SHORT).show()
+                    // ¡Enviamos los datos a C#!
+                    val response = RetrofitClient.getApiService(this@LoginActivity).login(request)
+
+                    // 4. Evaluamos la respuesta de C#
+                    if (response.isSuccessful && response.body() != null) {
+                        // ¡Ha ido bien! Sacamos el token de la respuesta
+                        val token = response.body()!!.token
+
+                        // 1. Guardamos el token en la memoria del móvil
+                        val sharedPreferences = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+                        sharedPreferences.edit().putString("TOKEN", token).apply()
+
+                        // 2. Saltamos a la pantalla de Inicio
+                        val intent = Intent(this@LoginActivity, InicioActivity::class.java)
+                        startActivity(intent)
+                        finish() // Cerramos el Login para que no pueda volver atrás con el botón de retroceso
+
+                    } else {
+                        // C# nos ha dicho que las credenciales están mal (Error 401)
+                        Toast.makeText(this@LoginActivity, "Email o contraseña incorrectos", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    // Error crítico (ej: Servidor apagado, puerto incorrecto, sin internet)
+                    Toast.makeText(this@LoginActivity, "Error de conexión: ${e.message}", Toast.LENGTH_LONG).show()
+                    println("ERROR DE RED: ${e.message}")
+                }
             }
         }
     }

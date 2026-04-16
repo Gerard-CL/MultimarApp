@@ -93,7 +93,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="12dp"
-                            android:text="Nueva Propuesta Recibida #30361"
+                            android:text="Nueva Propuesta Recibida"
                             android:textColor="@android:color/white"
                             android:textStyle="bold" />
                     </LinearLayout>

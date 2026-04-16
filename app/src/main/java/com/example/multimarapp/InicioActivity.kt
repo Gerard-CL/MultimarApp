@@ -1,99 +1,89 @@
 package com.example.multimarapp
 
-import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.multimarapp.network.RetrofitClient
 import kotlinx.coroutines.launch
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import com.example.multimarapp.adapters.EnviosAdapter
+import android.content.Intent
+import android.widget.ImageView
 
 class InicioActivity : AppCompatActivity() {
+
+    // Declaramos el adapter arriba para poder usarlo en toda la clase
+    private lateinit var enviosAdapter: EnviosAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_inicio)
 
-        // ---------------------------------------------------------
-        // 1. CONFIGURACIÓN DE NAVEGACIÓN Y BOTONES
-        // ---------------------------------------------------------
-        findViewById<View>(R.id.indicatorInicio).setBackgroundResource(R.color.btn_blue)
+        // --- NUEVO CÓDIGO PARA EL BOTÓN DE LA CAMPANA ---
+        val imgNotification = findViewById<ImageView>(R.id.imgNotification)
 
-        val btnCampana = findViewById<ImageView>(R.id.imgNotification)
-        btnCampana.setOnClickListener {
-            val intent = Intent(this, NotificacionesActivity::class.java)
+        imgNotification.setOnClickListener {
+            // Creamos la intención de ir de esta pantalla a NotificacionesActivity
+            val intent = Intent(this@InicioActivity, NotificacionesActivity::class.java)
             startActivity(intent)
-            overridePendingTransition(0, 0)
         }
+        // -------------------------------------------------
 
-        val navEnvios = findViewById<LinearLayout>(R.id.navEnvios)
-        navEnvios.setOnClickListener {
-            val intent = Intent(this, EnviosActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-            startActivity(intent)
-            overridePendingTransition(0, 0)
-        }
+        configurarRecyclerView()
+        cargarDatosDelDashboard()
+    }
 
-        val navPerfil = findViewById<LinearLayout>(R.id.navPerfil)
-        navPerfil.setOnClickListener {
-            val intent = Intent(this, PerfilActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-            startActivity(intent)
-            overridePendingTransition(0, 0)
-        }
-
-        // ---------------------------------------------------------
-        // 2. CONFIGURACIÓN DEL RECYCLERVIEW (Tu código original)
-        // ---------------------------------------------------------
+    private fun configurarRecyclerView() {
         val rvEnvios = findViewById<RecyclerView>(R.id.rvEnvios)
+        // Le decimos que se muestre como una lista vertical
         rvEnvios.layoutManager = LinearLayoutManager(this)
 
-        val listaDeEnvios = listOf(
-            Envio("080205340", "Juan", "EEUU", "Enviado", "En camino"),
-            Envio("080205340", "Juan", "EEUU", "En camino", "En camino"),
-            Envio("080205340", "Juan", "EEUU", "Entregado", "En camino")
-                                  )
+        // Inicializamos el adapter con una lista vacía de momento
+        enviosAdapter = EnviosAdapter(emptyList())
+        rvEnvios.adapter = enviosAdapter
+    }
 
-        val adapter = EnvioAdapter(listaDeEnvios)
-        rvEnvios.adapter = adapter
-
-        // ---------------------------------------------------------
-        // 3. NUEVO CÓDIGO: LLAMADA A LA API CON RETROFIT
-        // ---------------------------------------------------------
-        // Buscamos los TextView de la tarjeta en tu XML
+    private fun cargarDatosDelDashboard() {
+        val tvGreeting = findViewById<TextView>(R.id.tvGreeting)
         val tvTotalValue = findViewById<TextView>(R.id.tvTotalValue)
-        // OJO: Asegúrate de haber añadido 'android:id="@+id/tvFecha"' en tu XML al texto de la fecha
         val tvFecha = findViewById<TextView>(R.id.tvFecha)
 
-        // Configuramos Retrofit (Cambia el 7254 por el puerto de tu API en Visual Studio)
-        val retrofit = Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:5002/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
+        val api = RetrofitClient.getApiService(this)
 
-        val api = retrofit.create(ApiService::class.java)
-
-        // Lanzamos la corrutina para que la app no se congele mientras espera a la API
         lifecycleScope.launch {
             try {
-                // Llamamos a la API
-                val propuesta = api.getPropuestaReciente()
+                // 1. Cargar Perfil
+                val perfilRes = api.getPerfil()
+                if (perfilRes.isSuccessful && perfilRes.body() != null) {
+                    tvGreeting.text = "Hola, ${perfilRes.body()!!.nom}"
+                }
 
-                // Si todo va bien, pintamos los datos
-                tvTotalValue.text = "${propuesta.preu} €"
-                tvFecha.text = "Fecha: ${propuesta.dataValidessaInicial}"
+                // 2. Cargar Última Propuesta
+                val propuestaRes = api.getUltimaPropuesta()
+                if (propuestaRes.isSuccessful) {
+                    if (propuestaRes.code() == 204) {
+                        tvTotalValue.text = "0.00 €"
+                        tvFecha.text = "Sin propuestas"
+                    } else if (propuestaRes.body() != null) {
+                        val propuesta = propuestaRes.body()!!
+                        tvTotalValue.text = "${propuesta.precio} €"
+                        tvFecha.text = "Fecha: ${propuesta.fechaInicio.take(10)}"
+                    }
+                }
+
+                // 3. Cargar Últimos Envíos
+                val enviosRes = api.getUltimosEnvios()
+                if (enviosRes.isSuccessful && enviosRes.body() != null) {
+                    val listaEnvios = enviosRes.body()!!
+                    // AQUÍ ESTÁ LA MAGIA: Le pasamos la lista de internet a nuestro Adapter
+                    enviosAdapter.actualizarDatos(listaEnvios)
+                }
 
             } catch (e: Exception) {
-                // Si hay error (API apagada, sin internet, etc), mostramos un mensaje
-                Toast.makeText(this@InicioActivity, "Error al cargar la propuesta", Toast.LENGTH_LONG).show()
-                e.printStackTrace() // Esto imprimirá el error exacto en el Logcat (la consola de abajo)
+                Toast.makeText(this@InicioActivity, "Error de red: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
