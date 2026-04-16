@@ -7,6 +7,7 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 // Importaciones necesarias para los campos de texto y corrutinas
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.CoroutineScope
@@ -75,30 +76,21 @@ class PerfilActivity : AppCompatActivity() {
 
     private fun cargarDatosDeUsuario() {
         // Hacemos la petición en un hilo secundario para no bloquear la app
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch {
             try {
-                // AQUI VA TU LLAMADA A RETROFIT
-                // val response = api.obtenerPerfilUsuario()
+                // Hacemos la petición al servidor
+                val miPerfil = RetrofitClient.apiService.getDatosPerfil()
 
-                // SIMULACIÓN: Imaginemos que la API nos devuelve este objeto con éxito
-                val nombreApi = "Juan"
-                val apellidosApi = "Peréz Garcia"
-                val correoApi = "juanperez@gmail.com"
-                val telefonoApi = "+34 654 489 321"
-
-                // IMPORTANTE: Para modificar la pantalla, debemos volver al hilo principal (Main)
-                withContext(Dispatchers.Main) {
-                    etNombre.setText(nombreApi)
-                    etApellidos.setText(apellidosApi)
-                    etCorreo.setText(correoApi)
-                    etTelefono.setText(telefonoApi)
-                }
+                // 3. Inyectamos los datos del JSON en las cajas de texto
+                etNombre.setText(miPerfil.nombre)
+                etApellidos.setText(miPerfil.apellido)
+                etCorreo.setText(miPerfil.correo)
+                etTelefono.setText(miPerfil.telefono)
 
             } catch (e: Exception) {
-                // Si la API falla o no hay internet
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@PerfilActivity, "Error al cargar el perfil", Toast.LENGTH_SHORT).show()
-                }
+                // Si la API falla, avisamos
+                Toast.makeText(this@PerfilActivity, "Error al cargar el perfil", Toast.LENGTH_SHORT).show()
+                e.printStackTrace()
             }
         }
     }

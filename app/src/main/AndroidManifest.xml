@@ -24,7 +24,7 @@
             android:name=".GestioComanda"
             android:exported="false" />
         <activity
-            android:name=".InicioActivity"
+            android:name=".IniioActivityAgente"
             android:exported="false" />
         <activity
             android:name=".DetallesOferta"
@@ -51,7 +51,7 @@
             android:name=".MainActivity"
             android:exported="false" />
         <activity
-            android:name=".IniioActivityAgente"
+            android:name=".InicioActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

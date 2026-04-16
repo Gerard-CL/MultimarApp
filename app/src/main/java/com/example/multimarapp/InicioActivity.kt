@@ -12,8 +12,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class InicioActivity : AppCompatActivity() {
 
@@ -50,41 +48,31 @@ class InicioActivity : AppCompatActivity() {
         }
 
         // ---------------------------------------------------------
-        // 2. CONFIGURACIÓN DEL RECYCLERVIEW (Tu código original)
+        // 2. CONFIGURACIÓN DEL RECYCLERVIEW (Datos falsos temporales)
         // ---------------------------------------------------------
         val rvEnvios = findViewById<RecyclerView>(R.id.rvEnvios)
         rvEnvios.layoutManager = LinearLayoutManager(this)
 
         val listaDeEnvios = listOf(
-            Envio("080205340", "Juan", "EEUU", "Enviado", "En camino"),
-            Envio("080205340", "Juan", "EEUU", "En camino", "En camino"),
-            Envio("080205340", "Juan", "EEUU", "Entregado", "En camino")
-                                  )
+            Envio("080205340", "Juan", "EEUU", "Enviado"),
+            Envio("080205340", "Juan", "EEUU", "En camino"),
+            Envio("080205340", "Juan", "EEUU", "Entregado")
+        )
 
         val adapter = EnvioAdapter(listaDeEnvios)
         rvEnvios.adapter = adapter
 
         // ---------------------------------------------------------
-        // 3. NUEVO CÓDIGO: LLAMADA A LA API CON RETROFIT
+        // 3. LLAMADA A LA API OPTIMIZADA
         // ---------------------------------------------------------
-        // Buscamos los TextView de la tarjeta en tu XML
         val tvTotalValue = findViewById<TextView>(R.id.tvTotalValue)
-        // OJO: Asegúrate de haber añadido 'android:id="@+id/tvFecha"' en tu XML al texto de la fecha
         val tvFecha = findViewById<TextView>(R.id.tvFecha)
 
-        // Configuramos Retrofit (Cambia el 7254 por el puerto de tu API en Visual Studio)
-        val retrofit = Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:5002/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        val api = retrofit.create(ApiService::class.java)
-
-        // Lanzamos la corrutina para que la app no se congele mientras espera a la API
+        // Usamos la corrutina directamente llamando a nuestro Singleton
         lifecycleScope.launch {
             try {
-                // Llamamos a la API
-                val propuesta = api.getPropuestaReciente()
+                // Fíjate cómo ahora simplemente llamamos a RetrofitClient.apiService
+                val propuesta = RetrofitClient.apiService.getPropuestaReciente()
 
                 // Si todo va bien, pintamos los datos
                 tvTotalValue.text = "${propuesta.preu} €"
@@ -93,7 +81,7 @@ class InicioActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 // Si hay error (API apagada, sin internet, etc), mostramos un mensaje
                 Toast.makeText(this@InicioActivity, "Error al cargar la propuesta", Toast.LENGTH_LONG).show()
-                e.printStackTrace() // Esto imprimirá el error exacto en el Logcat (la consola de abajo)
+                e.printStackTrace()
             }
         }
     }
