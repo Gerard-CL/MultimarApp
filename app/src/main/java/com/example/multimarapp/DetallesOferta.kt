@@ -22,12 +22,10 @@ class DetallesOferta : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detalles_oferta)
 
-        // 1. Recogemos el ID que nos ha enviado el Adapter
         ofertaId = intent.getIntExtra("ID_OFERTA", -1)
 
-        // 2. Botón de volver atrás
         findViewById<ImageButton>(R.id.btnBack).setOnClickListener {
-            finish() // Cierra esta pantalla y vuelve a la anterior
+            finish()
         }
 
         if (ofertaId != -1) {
@@ -48,7 +46,6 @@ class DetallesOferta : AppCompatActivity() {
                 if (response.isSuccessful && response.body() != null) {
                     val datos = response.body()!!
 
-                    // Inyectamos los datos en el diseño
                     findViewById<TextView>(R.id.tvIdDetalle).text = datos.id.toString()
                     findViewById<TextView>(R.id.tvOperador).text = datos.operadorLogistico
                     findViewById<TextView>(R.id.tvFechaValida).text = datos.fechaCaducidad.take(10)
@@ -85,7 +82,7 @@ class DetallesOferta : AppCompatActivity() {
     }
 
     private fun mostrarDialogoRechazo() {
-        // Creamos la "ventana flotante" para pedir la razón
+
         val input = EditText(this)
         input.hint = "Escribe el motivo del rechazo..."
 
@@ -120,7 +117,6 @@ class DetallesOferta : AppCompatActivity() {
                     val mensaje = if (aceptar) "Propuesta Aceptada" else "Propuesta Rechazada"
                     Toast.makeText(this@DetallesOferta, mensaje, Toast.LENGTH_SHORT).show()
 
-                    // Como la oferta ya no debe salir en Notificaciones, volvemos a Inicio
                     val intent = Intent(this@DetallesOferta, InicioActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP // Limpia el historial de pantallas
                     startActivity(intent)

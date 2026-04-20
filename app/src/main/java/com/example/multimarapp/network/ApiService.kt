@@ -6,9 +6,10 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ApiService {
-    // Esta ruta viene de tu [Route("api/[controller]")] + [HttpPost("login")]
+    
     @POST("api/Auth/login")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
@@ -32,4 +33,20 @@ interface ApiService {
 
     @PUT("api/DashboardCliente/RechazarPropuesta/{id}")
     suspend fun rechazarPropuesta(@Path("id") id: Int, @Body body: RechazoRequest): retrofit2.Response<Any>
+
+    @GET("api/DashboardCliente/PedidosActivos") // Ajusta 'DashboardCliente' si el controlador se llama distinto
+    suspend fun getPedidosActivos(@Query("busqueda") busqueda: String? = null): retrofit2.Response<List<PedidoActivoResponse>>
+
+    @GET("api/DashboardCliente/HistorialPedidos")
+    suspend fun getHistorialPedidos(): retrofit2.Response<List<HistorialPedidoResponse>>
+
+    @GET("api/DashboardCliente/Seguimiento/{idOperacion}")
+    suspend fun getSeguimientoOperacion(@Path("idOperacion") idOperacion: Int): retrofit2.Response<SeguimientoOperacionResponse>
+
+    // Cambia "Cliente" por el nombre de tu Controlador en C#
+    @GET("api/DashboardCliente/PerfilCliente")
+    suspend fun getPerfilCliente(): Response<PerfilClienteDTO>
+
+    @PUT("api/DashboardCliente/PerfilCliente")
+    suspend fun actualizarPerfil(@Body datosActualizados: PerfilClienteDTO): Response<Any>
 }

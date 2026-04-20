@@ -13,7 +13,3 @@ data class PropuestaDetalleResponse(
     val flujo: String,
     val precio: Double
 )
-
-data class RechazoRequest(
-    val razon: String
-)

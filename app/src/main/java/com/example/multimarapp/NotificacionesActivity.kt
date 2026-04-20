@@ -1,6 +1,7 @@
 package com.example.multimarapp
 
 import android.os.Bundle
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -18,6 +19,11 @@ class NotificacionesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_notificaciones)
 
+        val btnBack = findViewById<ImageView>(R.id.btnBack)
+        btnBack.setOnClickListener {
+            finish()
+        }
+
         configurarRecyclerView()
         cargarNotificaciones()
     }
@@ -26,18 +32,16 @@ class NotificacionesActivity : AppCompatActivity() {
         val rvNotificaciones = findViewById<RecyclerView>(R.id.rvNotificaciones)
         rvNotificaciones.layoutManager = LinearLayoutManager(this)
 
-        // Empezamos con una lista vacía
         notificacionesAdapter = NotificacionesAdapter(emptyList())
         rvNotificaciones.adapter = notificacionesAdapter
     }
 
     private fun cargarNotificaciones() {
-        // Inicializamos Retrofit pasando el contexto (this) para que use el Token
+
         val api = RetrofitClient.getApiService(this)
 
         lifecycleScope.launch {
             try {
-                // Llamamos a C#
                 val response = api.getTodasLasPropuestas()
 
                 if (response.isSuccessful && response.body() != null) {
@@ -46,7 +50,6 @@ class NotificacionesActivity : AppCompatActivity() {
                     if (listaNotificaciones.isEmpty()) {
                         Toast.makeText(this@NotificacionesActivity, "No tienes nuevas propuestas", Toast.LENGTH_SHORT).show()
                     } else {
-                        // Le pasamos los datos al Adapter para que los pinte
                         notificacionesAdapter.actualizarDatos(listaNotificaciones)
                     }
                 } else {

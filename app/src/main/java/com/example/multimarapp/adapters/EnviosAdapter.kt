@@ -1,16 +1,18 @@
-package com.example.multimarapp.adapters // Asegúrate de poner tu package real
+package com.example.multimarapp.adapters
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.multimarapp.DetalleEnviosActivity
 import com.example.multimarapp.R
 import com.example.multimarapp.network.EnvioResponse
 
 class EnviosAdapter(private var envios: List<EnvioResponse>) : RecyclerView.Adapter<EnviosAdapter.EnvioViewHolder>() {
 
-    // 1. Enlazamos los IDs de tu item_envio_detalle.xml
+    // 1. Enlazamos los IDs
     class EnvioViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvEstado: TextView = view.findViewById(R.id.tvEstado)
         val tvOrderId: TextView = view.findViewById(R.id.tvOrderId)
@@ -18,7 +20,7 @@ class EnviosAdapter(private var envios: List<EnvioResponse>) : RecyclerView.Adap
         val tvDestino: TextView = view.findViewById(R.id.tvDestino)
     }
 
-    // 2. Le decimos qué diseño XML usar para cada fila
+    // 2. Le decimos qué diseño XML usar
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EnvioViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_envio_detalle, parent, false)
         return EnvioViewHolder(view)
@@ -31,14 +33,22 @@ class EnviosAdapter(private var envios: List<EnvioResponse>) : RecyclerView.Adap
         holder.tvOrderId.text = "ID del Pedido: ${envio.id}"
         holder.tvOrigen.text = envio.ciudadOrigen
         holder.tvDestino.text = envio.ciudadDestino
+
+        // ¡NUEVO!: Al hacer clic en cualquier parte de la tarjeta del pedido
+        holder.itemView.setOnClickListener {
+            val context = holder.itemView.context
+            val intent = Intent(context, DetalleEnviosActivity::class.java)
+            // Pasamos el ID exacto del pedido (envio.id) a la siguiente pantalla
+            intent.putExtra("EXTRA_ID_PEDIDO", envio.id)
+            context.startActivity(intent)
+        }
     }
 
     // 4. Le decimos cuántos elementos hay en total
     override fun getItemCount() = envios.size
 
-    // Función extra para actualizar la lista cuando nos lleguen los datos de internet
     fun actualizarDatos(nuevaLista: List<EnvioResponse>) {
         envios = nuevaLista
-        notifyDataSetChanged() // Avisa al RecyclerView de que hay datos nuevos y debe repintarse
+        notifyDataSetChanged()
     }
 }

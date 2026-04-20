@@ -35,8 +35,8 @@ class NotificacionesAdapter(private var notificaciones: List<NotificacionRespons
         val fechaIniCorta = notificacion.fechaInicio.take(10)
         val fechaCadCorta = notificacion.fechaCaducidad.take(10)
 
-        holder.tvFechaInicial.text = "Fecha Inicial: $fechaIniCorta"
-        holder.tvCaducidad.text = "Fecha Caducidad: $fechaCadCorta"
+        holder.tvFechaInicial.text = "$fechaIniCorta"
+        holder.tvCaducidad.text = " Válido hasta: $fechaCadCorta"
         holder.tvTotalValue.text = "${notificacion.precio} €"
 
         holder.btnVerDetalles.setOnClickListener { view ->

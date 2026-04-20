@@ -39,6 +39,7 @@
             android:paddingHorizontal="24dp"
             android:paddingBottom="24dp">
 
+            <!-- Card: Datos personal -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -53,97 +54,132 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <!-- Título + botón Editar -->
+                    <RelativeLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Datos personal"
-                        android:textColor="@color/navy_blue"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="16dp"/>
+                        android:layout_marginBottom="16dp">
 
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:text="Datos personal"
+                            android:textColor="@color/navy_blue"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <!-- CAMBIO 1: fondo azul, texto blanco, sin outline -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnEditPersonalData"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:text="Editar"
+                            android:textAllCaps="false"
+                            android:textColor="@android:color/white"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            app:backgroundTint="@color/navy_blue"
+                            app:cornerRadius="8dp"
+                            app:icon="@drawable/ic_edit"
+                            app:iconGravity="textStart"
+                            app:iconSize="16dp"
+                            app:iconTint="@android:color/white" />
+                    </RelativeLayout>
+
+                    <!-- CAMBIO 2: boxBackgroundColor gris, focusable/enabled false -->
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutNombre"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Nombre"
                         android:layout_marginBottom="12dp"
-                        app:endIconMode="custom"
+                        app:boxBackgroundColor="#F2F2F2"
                         app:boxBackgroundMode="filled"
-                        app:boxBackgroundColor="@android:color/white"
-                        app:boxCornerRadiusTopStart="8dp"
-                        app:boxCornerRadiusTopEnd="8dp"
-                        app:boxCornerRadiusBottomStart="8dp"
                         app:boxCornerRadiusBottomEnd="8dp"
+                        app:boxCornerRadiusBottomStart="8dp"
+                        app:boxCornerRadiusTopEnd="8dp"
+                        app:boxCornerRadiusTopStart="8dp"
                         app:boxStrokeColor="#E0E0E0">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etNombre"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            tools:text="Juan"
-                            android:textColor="@color/text_dark" />
+                            android:enabled="false"
+                            android:focusable="false"
+                            android:textColor="@color/text_dark"
+                            tools:text="Juan" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutApellidos"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Apellidos"
                         android:layout_marginBottom="12dp"
-                        app:endIconMode="custom"
+                        app:boxBackgroundColor="#F2F2F2"
                         app:boxBackgroundMode="filled"
-                        app:boxBackgroundColor="@android:color/white"
-                        app:boxCornerRadiusTopStart="8dp"
-                        app:boxCornerRadiusTopEnd="8dp"
-                        app:boxCornerRadiusBottomStart="8dp"
                         app:boxCornerRadiusBottomEnd="8dp"
+                        app:boxCornerRadiusBottomStart="8dp"
+                        app:boxCornerRadiusTopEnd="8dp"
+                        app:boxCornerRadiusTopStart="8dp"
                         app:boxStrokeColor="#E0E0E0">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etApellidos"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            tools:text="Peréz Garcia"
-                            android:textColor="@color/text_dark" />
+                            android:enabled="false"
+                            android:focusable="false"
+                            android:textColor="@color/text_dark"
+                            tools:text="Peréz Garcia" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutCorreo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Correo Electrónico"
                         android:layout_marginBottom="12dp"
-                        app:endIconMode="custom"
+                        app:boxBackgroundColor="#F2F2F2"
                         app:boxBackgroundMode="filled"
-                        app:boxBackgroundColor="@android:color/white"
-                        app:boxCornerRadiusTopStart="8dp"
-                        app:boxCornerRadiusTopEnd="8dp"
-                        app:boxCornerRadiusBottomStart="8dp"
                         app:boxCornerRadiusBottomEnd="8dp"
+                        app:boxCornerRadiusBottomStart="8dp"
+                        app:boxCornerRadiusTopEnd="8dp"
+                        app:boxCornerRadiusTopStart="8dp"
                         app:boxStrokeColor="#E0E0E0">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etCorreo"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            tools:text="juanperez@gmail.com"
-                            android:textColor="@color/text_dark" />
+                            android:enabled="false"
+                            android:focusable="false"
+                            android:textColor="@color/text_dark"
+                            tools:text="juanperez@gmail.com" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutTelefono"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Número de teléfono"
                         android:layout_marginBottom="16dp"
-                        app:endIconMode="custom"
+                        app:boxBackgroundColor="#F2F2F2"
                         app:boxBackgroundMode="filled"
-                        app:boxBackgroundColor="@android:color/white"
-                        app:boxCornerRadiusTopStart="8dp"
-                        app:boxCornerRadiusTopEnd="8dp"
-                        app:boxCornerRadiusBottomStart="8dp"
                         app:boxCornerRadiusBottomEnd="8dp"
+                        app:boxCornerRadiusBottomStart="8dp"
+                        app:boxCornerRadiusTopEnd="8dp"
+                        app:boxCornerRadiusTopStart="8dp"
                         app:boxStrokeColor="#E0E0E0">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etTelefono"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            tools:text="+34 654 489 321"
-                            android:textColor="@color/text_dark" />
+                            android:enabled="false"
+                            android:focusable="false"
+                            android:textColor="@color/text_dark"
+                            tools:text="+34 654 489 321" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.button.MaterialButton
@@ -153,6 +189,7 @@
                         android:text="Guardar Cambios"
                         android:textAllCaps="false"
                         android:textColor="@android:color/white"
+                        android:textSize="16sp"
                         android:textStyle="bold"
                         app:backgroundTint="@color/navy_blue"
                         app:cornerRadius="8dp" />
@@ -160,6 +197,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Card: Preferencias -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -177,38 +215,63 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
                         android:text="Preferencias"
                         android:textColor="@color/navy_blue"
                         android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="16dp"/>
+                        android:textStyle="bold" />
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/menuIdioma"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Selecciona tu idioma"
-                        app:boxBackgroundColor="@android:color/white"
-                        app:boxCornerRadiusBottomEnd="8dp"
-                        app:boxCornerRadiusBottomStart="8dp"
-                        app:boxCornerRadiusTopEnd="8dp"
-                        app:boxCornerRadiusTopStart="8dp"
-                        app:startIconTint="@color/navy_blue">
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
-                        <AutoCompleteTextView
-                            android:id="@+id/autoCompleteIdioma"
-                            android:layout_width="match_parent"
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_language"
+                            app:tint="@color/navy_blue" />
+
+                        <TextView
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:inputType="none"
-                            android:padding="16dp"
-                            android:text="Español"
-                            android:textColor="@color/text_dark" />
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            android:text="Idioma"
+                            android:textColor="@color/text_dark"
+                            android:textSize="14sp" />
 
-                    </com.google.android.material.textfield.TextInputLayout>
+                        <!-- CAMBIO 3: fondo gris para el pill -->
+                        <TextView
+                            android:id="@+id/tvIdiomaSelector"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_pill_selector"
+                            android:drawableEnd="@drawable/ic_arrow_drop_down"
+                            android:drawablePadding="4dp"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="8dp"
+                            android:paddingTop="6dp"
+                            android:paddingBottom="6dp"
+                            android:text="Español"
+                            android:textColor="@color/text_dark"
+                            android:textSize="13sp" />
+
+                        <ImageView
+                            android:id="@+id/btnEditIdioma"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_marginStart="10dp"
+                            android:padding="4dp"
+                            android:src="@drawable/ic_edit_pencil"
+                            app:tint="@color/navy_blue" />
+
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Card: Documentación (DNI) -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -229,8 +292,14 @@
                         android:text="Documentación (DNI)"
                         android:textColor="@color/navy_blue"
                         android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="16dp"/>
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="20dp"
+                        android:background="#E0E0E0" />
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -241,16 +310,19 @@
                         android:layout_marginBottom="24dp">
 
                         <ImageView
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:src="@drawable/ic_verified_check_circle"/>
+                            android:id="@+id/ivEstadoDni"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_cruz_roja" />
 
                         <TextView
+                            android:id="@+id/tvEstadoDni"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
-                            android:text="DNI VERIFICADO"
-                            android:textColor="@color/navy_blue"
+                            android:text="DNI NO SUBIDO"
+                            android:textColor="#D32F2F"
+                            android:textSize="14sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -258,27 +330,27 @@
                         android:id="@+id/btnSaveDniData"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Guardar Cambios"
+                        android:layout_marginBottom="12dp"
+                        android:text="Subir DNI"
                         android:textAllCaps="false"
                         android:textColor="@android:color/white"
+                        android:textSize="16sp"
                         android:textStyle="bold"
                         app:backgroundTint="@color/navy_blue"
-                        app:cornerRadius="8dp"
-                        android:layout_marginBottom="12dp" />
+                        app:cornerRadius="8dp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnReplaceDni"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Remplazar DNI"
+                        android:layout_marginBottom="16dp"
+                        android:text="Ver DNI"
                         android:textAllCaps="false"
                         android:textColor="@android:color/white"
+                        android:textSize="16sp"
                         android:textStyle="bold"
                         app:backgroundTint="#32ba7c"
-                        app:cornerRadius="8dp"
-                        app:iconGravity="textStart"
-                        app:iconTint="@android:color/white"
-                        android:layout_marginBottom="12dp" />
+                        app:cornerRadius="8dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -290,6 +362,7 @@
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

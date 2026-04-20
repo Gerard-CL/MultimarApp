@@ -11,26 +11,25 @@ import com.example.multimarapp.network.RetrofitClient
 import kotlinx.coroutines.launch
 import com.example.multimarapp.adapters.EnviosAdapter
 import android.content.Intent
+import android.view.View
 import android.widget.ImageView
 
 class InicioActivity : AppCompatActivity() {
 
-    // Declaramos el adapter arriba para poder usarlo en toda la clase
     private lateinit var enviosAdapter: EnviosAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_inicio)
 
-        // --- NUEVO CÓDIGO PARA EL BOTÓN DE LA CAMPANA ---
         val imgNotification = findViewById<ImageView>(R.id.imgNotification)
 
         imgNotification.setOnClickListener {
-            // Creamos la intención de ir de esta pantalla a NotificacionesActivity
             val intent = Intent(this@InicioActivity, NotificacionesActivity::class.java)
             startActivity(intent)
         }
-        // -------------------------------------------------
+
+        configurarNavegacionInferior()
 
         configurarRecyclerView()
         cargarDatosDelDashboard()
@@ -38,10 +37,8 @@ class InicioActivity : AppCompatActivity() {
 
     private fun configurarRecyclerView() {
         val rvEnvios = findViewById<RecyclerView>(R.id.rvEnvios)
-        // Le decimos que se muestre como una lista vertical
         rvEnvios.layoutManager = LinearLayoutManager(this)
 
-        // Inicializamos el adapter con una lista vacía de momento
         enviosAdapter = EnviosAdapter(emptyList())
         rvEnvios.adapter = enviosAdapter
     }
@@ -50,6 +47,8 @@ class InicioActivity : AppCompatActivity() {
         val tvGreeting = findViewById<TextView>(R.id.tvGreeting)
         val tvTotalValue = findViewById<TextView>(R.id.tvTotalValue)
         val tvFecha = findViewById<TextView>(R.id.tvFecha)
+
+        val btnVerDetalles = findViewById<View>(R.id.btnVerDetalles)
 
         val api = RetrofitClient.getApiService(this)
 
@@ -67,10 +66,19 @@ class InicioActivity : AppCompatActivity() {
                     if (propuestaRes.code() == 204) {
                         tvTotalValue.text = "0.00 €"
                         tvFecha.text = "Sin propuestas"
+
+                        btnVerDetalles.visibility = View.GONE
                     } else if (propuestaRes.body() != null) {
                         val propuesta = propuestaRes.body()!!
                         tvTotalValue.text = "${propuesta.precio} €"
                         tvFecha.text = "Fecha: ${propuesta.fechaInicio.take(10)}"
+
+                        btnVerDetalles.visibility = View.VISIBLE
+                        btnVerDetalles.setOnClickListener {
+                            val intent = Intent(this@InicioActivity, DetallesOferta::class.java)
+                            intent.putExtra("ID_OFERTA", propuesta.id)
+                            startActivity(intent)
+                        }
                     }
                 }
 
@@ -78,13 +86,30 @@ class InicioActivity : AppCompatActivity() {
                 val enviosRes = api.getUltimosEnvios()
                 if (enviosRes.isSuccessful && enviosRes.body() != null) {
                     val listaEnvios = enviosRes.body()!!
-                    // AQUÍ ESTÁ LA MAGIA: Le pasamos la lista de internet a nuestro Adapter
                     enviosAdapter.actualizarDatos(listaEnvios)
                 }
 
             } catch (e: Exception) {
                 Toast.makeText(this@InicioActivity, "Error de red: ${e.message}", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    private fun configurarNavegacionInferior() {
+        // Botón de Envíos
+        val navEnvios = findViewById<View>(R.id.navEnvios)
+        navEnvios.setOnClickListener {
+            val intent = Intent(this@InicioActivity, EnviosActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            startActivity(intent)
+            finish()
+        }
+
+        // Botón de Perfil
+        val navPerfil = findViewById<View>(R.id.navPerfil)
+        navPerfil.setOnClickListener {
+            val intent = Intent(this@InicioActivity, PerfilActivity::class.java)
+            startActivity(intent)
         }
     }
 }

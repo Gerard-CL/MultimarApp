@@ -12,7 +12,7 @@
         android:id="@+id/layoutHeaderTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="48dp"
         android:layout_marginHorizontal="24dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -35,11 +35,12 @@
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="12dp"
             android:text="Historial de Ordenes"
             android:textColor="@android:color/white"
-            android:textSize="26sp"
-            android:textStyle="bold" />
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:letterSpacing="-0.02" />
 
     </LinearLayout>
 
@@ -47,23 +48,25 @@
         android:id="@+id/contentContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="28dp"
         android:background="@drawable/bg_rounded_top"
-        android:paddingTop="24dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottomNavLayout"
+        android:paddingTop="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/layoutHeaderTitle">
 
         <EditText
             android:id="@+id/etSearch"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginHorizontal="24dp"
+            android:layout_height="52dp"
+            android:layout_marginHorizontal="20dp"
             android:background="@drawable/bg_search"
             android:drawableStart="@android:drawable/ic_menu_search"
-            android:drawablePadding="12dp"
+            android:drawablePadding="10dp"
             android:hint="Search"
+            android:inputType="text"
             android:paddingHorizontal="16dp"
             android:textColorHint="@android:color/darker_gray"
+            android:textSize="15sp"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -72,19 +75,12 @@
             android:layout_height="0dp"
             android:layout_marginTop="16dp"
             android:clipToPadding="false"
-            android:paddingHorizontal="24dp"
+            android:paddingHorizontal="20dp"
             android:paddingBottom="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/etSearch"
             tools:listitem="@layout/item_historial" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <include
-        android:id="@+id/bottomNavLayout"
-        layout="@layout/layout_bottom_nav"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

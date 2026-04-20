@@ -135,6 +135,7 @@
                             app:layout_constraintTop_toTopOf="@+id/tvTotalLabel" />
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnVerDetalles"
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:layout_marginTop="16dp"

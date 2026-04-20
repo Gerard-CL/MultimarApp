@@ -18,19 +18,13 @@
             android:name=".PerfilAgenteActivity"
             android:exported="false" />
         <activity
-            android:name=".PedidosActivity"
-            android:exported="false" />
-        <activity
-            android:name=".GestioComanda"
-            android:exported="false" />
-        <activity
             android:name=".InicioActivity"
             android:exported="false" />
         <activity
             android:name=".DetallesOferta"
             android:exported="false" />
         <activity
-            android:name=".detalle_envios"
+            android:name=".DetalleEnviosActivity"
             android:exported="false" />
         <activity
             android:name=".PerfilActivity"
@@ -43,9 +37,6 @@
             android:exported="false" />
         <activity
             android:name=".NotificacionesActivity"
-            android:exported="false" />
-        <activity
-            android:name=".IniioActivityAgente"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
