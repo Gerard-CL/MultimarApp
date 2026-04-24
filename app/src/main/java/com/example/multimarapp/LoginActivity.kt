@@ -42,14 +42,26 @@ class LoginActivity : AppCompatActivity() {
 
                     if (response.isSuccessful && response.body() != null) {
 
-                        val token = response.body()!!.token
+                        val loginResponse = response.body()!!
+                        val token = loginResponse.token
+                        val rolId = loginResponse.rolId
 
                         val sharedPreferences = getSharedPreferences("AppPrefs", MODE_PRIVATE)
                         sharedPreferences.edit().putString("TOKEN", token).apply()
 
-                        val intent = Intent(this@LoginActivity, InicioActivity::class.java)
-                        startActivity(intent)
-                        finish()
+                        if (rolId == 4) {
+                            val intent = Intent(this@LoginActivity, InicioActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        }
+                        else if (rolId == 3) {
+                            val intent = Intent(this@LoginActivity, InicioAgenteActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        }
+                        else {
+                            Toast.makeText(this@LoginActivity, "Rol de usuario no válido", Toast.LENGTH_SHORT).show()
+                        }
 
                     } else {
                         Toast.makeText(this@LoginActivity, "Email o contraseña incorrectos", Toast.LENGTH_SHORT).show()

@@ -24,7 +24,6 @@ class HistorialAdapter(private var listaOriginal: List<HistorialPedidoResponse>)
         val tvDestino: TextView = view.findViewById(R.id.tvDestino)
         val ivArrow: ImageView = view.findViewById(R.id.ivArrow)
 
-        // Botones de descarga de documentos
         val ivDownloadDoc1: ImageView = view.findViewById(R.id.ivDownloadDoc1)
         val ivDownloadDoc2: ImageView = view.findViewById(R.id.ivDownloadDoc2)
     }
@@ -41,20 +40,18 @@ class HistorialAdapter(private var listaOriginal: List<HistorialPedidoResponse>)
         holder.tvOrigen.text = pedido.ciudadOrigen
         holder.tvDestino.text = pedido.ciudadDestino
 
-        // Lógica para Expandir/Contraer la tarjeta
         holder.layoutHeader.setOnClickListener {
             val estaVisible = holder.layoutExpandable.visibility == View.VISIBLE
 
             if (estaVisible) {
                 holder.layoutExpandable.visibility = View.GONE
-                holder.ivArrow.rotation = 0f // Flecha a su estado original
+                holder.ivArrow.rotation = 0f
             } else {
                 holder.layoutExpandable.visibility = View.VISIBLE
-                holder.ivArrow.rotation = 90f // Gira la flecha hacia abajo
+                holder.ivArrow.rotation = 90f
             }
         }
 
-        // Lógica temporal para los botones de descarga
         holder.ivDownloadDoc1.setOnClickListener {
             Toast.makeText(holder.itemView.context, "Descargando Documento 1 del pedido ${pedido.idPedido}", Toast.LENGTH_SHORT).show()
         }

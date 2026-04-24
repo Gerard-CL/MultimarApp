@@ -27,63 +27,57 @@ class TimelineAdapter(private var listaPasos: List<PasoTrackingResponse>) :
         return TimelineViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: TimelineViewHolder, position: Int) {
-        val paso = listaPasos[position]
+        override fun onBindViewHolder(holder: TimelineViewHolder, position: Int) {
+            val paso = listaPasos[position]
 
-        holder.tvTitle.text = paso.nombrePaso
+            holder.tvTitle.text = paso.nombrePaso
 
-        // Formatear la fecha o mostrar "Pendiente"
-        if (paso.fechaCompletado != null) {
-            try {
-                val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
-                val formatter = SimpleDateFormat("dd/MM/yyyy | HH:mm a", Locale.getDefault())
-                val date = parser.parse(paso.fechaCompletado)
-                holder.tvDate.text = formatter.format(date!!)
-            } catch (e: Exception) {
-                holder.tvDate.text = paso.fechaCompletado
+            if (paso.fechaCompletado != null) {
+                try {
+                    val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+                    val formatter = SimpleDateFormat("dd/MM/yyyy | HH:mm a", Locale.getDefault())
+                    val date = parser.parse(paso.fechaCompletado)
+                    holder.tvDate.text = formatter.format(date!!)
+                } catch (e: Exception) {
+                    holder.tvDate.text = paso.fechaCompletado
+                }
+            } else {
+                holder.tvDate.text = "Pendiente"
             }
-        } else {
-            holder.tvDate.text = "Pendiente"
+
+            holder.lineTop.visibility = if (position == 0) View.INVISIBLE else View.VISIBLE
+            holder.lineBottom.visibility = if (position == itemCount - 1) View.INVISIBLE else View.VISIBLE
+
+            // LÓGICA DE COLORES (AZUL vs GRIS)
+            val colorAzul = Color.parseColor("#63B4ED")
+            val colorGris = Color.parseColor("#E0E0E0")
+
+            val esCompletado = paso.fechaCompletado != null
+
+            val pasoAnteriorCompletado = if (position > 0) {
+                listaPasos[position - 1].estado.equals("Completado", ignoreCase = true)
+            } else {
+                true
+            }
+
+            // 1. Configurar el Punto y el Texto principal
+            if (esCompletado) {
+                holder.tvTitle.setTextColor(Color.parseColor("#111111"))
+                holder.dotIndicator.setBackgroundResource(R.drawable.bg_dot_active)
+                holder.lineBottom.setBackgroundColor(colorAzul)
+            } else {
+                holder.tvTitle.setTextColor(Color.parseColor("#999999"))
+                holder.dotIndicator.setBackgroundResource(R.drawable.bg_dot_inactive)
+                holder.lineBottom.setBackgroundColor(colorGris)
+            }
+
+            // 2. Configurar la Línea Superior
+            if (pasoAnteriorCompletado) {
+                holder.lineTop.setBackgroundColor(colorAzul)
+            } else {
+                holder.lineTop.setBackgroundColor(colorGris)
+            }
         }
-
-        // Visibilidad de los extremos (ocultar primera línea arriba y última abajo)
-        holder.lineTop.visibility = if (position == 0) View.INVISIBLE else View.VISIBLE
-        holder.lineBottom.visibility = if (position == itemCount - 1) View.INVISIBLE else View.VISIBLE
-
-        // ==========================================
-        // LÓGICA DE COLORES (AZUL vs GRIS)
-        // ==========================================
-        val colorAzul = Color.parseColor("#63B4ED") // Tu color azul claro
-        val colorGris = Color.parseColor("#E0E0E0") // Gris clarito para pendientes
-
-        val esCompletado = paso.fechaCompletado != null
-
-        // Verificamos si el paso anterior está completado para colorear la línea que los conecta
-        val pasoAnteriorCompletado = if (position > 0) {
-            listaPasos[position - 1].estado.equals("Completado", ignoreCase = true)
-        } else {
-            true // El primero da igual porque su lineTop está oculta
-        }
-
-        // 1. Configurar el Punto y el Texto principal
-        if (esCompletado) {
-            holder.tvTitle.setTextColor(Color.parseColor("#111111")) // Texto oscuro
-            holder.dotIndicator.setBackgroundResource(R.drawable.bg_dot_active) // Círculo azul
-            holder.lineBottom.setBackgroundColor(colorAzul) // La línea que sale hacia abajo es azul
-        } else {
-            holder.tvTitle.setTextColor(Color.parseColor("#999999")) // Texto grisáceo
-            holder.dotIndicator.setBackgroundResource(R.drawable.bg_dot_inactive) // Círculo gris
-            holder.lineBottom.setBackgroundColor(colorGris) // La línea que sale hacia abajo es gris
-        }
-
-        // 2. Configurar la Línea Superior (LineTop)
-        // La línea que llega a este punto es azul si el paso ANTERIOR ya se completó.
-        if (pasoAnteriorCompletado) {
-            holder.lineTop.setBackgroundColor(colorAzul)
-        } else {
-            holder.lineTop.setBackgroundColor(colorGris)
-        }
-    }
 
     override fun getItemCount() = listaPasos.size
 

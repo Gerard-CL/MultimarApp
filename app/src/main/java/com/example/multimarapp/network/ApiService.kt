@@ -49,4 +49,13 @@ interface ApiService {
 
     @PUT("api/DashboardCliente/PerfilCliente")
     suspend fun actualizarPerfil(@Body datosActualizados: PerfilClienteDTO): Response<Any>
+
+    @GET("api/DashboardAgente/resumen")
+    suspend fun getResumenAgente(): Response<ResumenDashboardResponse>
+
+    @GET("api/DashboardAgente/alertas")
+    suspend fun getAlertasGlobals(): Response<List<AlertaGlobalResponse>>
+
+    @GET("api/DashboardAgente/perfil-basico")
+    suspend fun getPerfilBasicoAgente(): retrofit2.Response<PerfilAgenteBasicoResponse>
 }

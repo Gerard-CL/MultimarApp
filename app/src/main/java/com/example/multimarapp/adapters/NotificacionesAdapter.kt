@@ -31,7 +31,7 @@ class NotificacionesAdapter(private var notificaciones: List<NotificacionRespons
 
         holder.tvNombrePropuesta.text = "Propuesta de ${notificacion.nombreOperador}"
 
-        // Recortamos la fecha de C# (suele venir como "2026-02-27T00:00:00") a solo "2026-02-27"
+
         val fechaIniCorta = notificacion.fechaInicio.take(10)
         val fechaCadCorta = notificacion.fechaCaducidad.take(10)
 
@@ -41,7 +41,7 @@ class NotificacionesAdapter(private var notificaciones: List<NotificacionRespons
 
         holder.btnVerDetalles.setOnClickListener { view ->
             val intent = android.content.Intent(view.context, DetallesOferta::class.java)
-            // Metemos el ID en la "mochila" del Intent para que la otra pantalla lo recoja
+
             intent.putExtra("ID_OFERTA", notificacion.id)
             view.context.startActivity(intent)
         }

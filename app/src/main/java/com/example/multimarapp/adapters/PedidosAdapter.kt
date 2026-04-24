@@ -33,11 +33,11 @@ class PedidosAdapter(private var pedidos: List<PedidoActivoResponse>) :
         holder.tvOrigen.text = pedido.ciudadOrigen
         holder.tvDestino.text = pedido.ciudadDestino
 
-        // ¡NUEVO!: Lógica para ir a la pantalla de detalles al tocar la tarjeta
+
         holder.itemView.setOnClickListener {
             val context = holder.itemView.context
             val intent = Intent(context, DetalleEnviosActivity::class.java)
-            // Pasamos el ID del pedido usando el nombre de la variable de tu DTO (idPedido)
+
             intent.putExtra("EXTRA_ID_PEDIDO", pedido.idPedido)
             context.startActivity(intent)
         }

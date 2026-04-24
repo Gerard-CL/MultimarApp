@@ -50,11 +50,10 @@ class PerfilActivity : AppCompatActivity() {
     // --- Variables de Datos y Sockets ---
     private var isEditingMode = false
     private var idiomaSeleccionado = "Español"
-    private var idUsuarioActual = 5 // TODO: Cambiar por el ID real del usuario logueado
-    private val SERVER_IP = "192.168.1.X" // TODO: Pon la IP de tu PC
+    private var idUsuarioActual = 5
+    private val SERVER_IP = "192.168.1.X"
     private val SERVER_PORT = 11000
 
-    // Selector de archivos para subir el DNI
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
             subirDniPorSocket(uri)
@@ -123,9 +122,9 @@ class PerfilActivity : AppCompatActivity() {
         }
     }
 
-    // ==========================================
+
     // LÓGICA VISUAL Y HTTP (DATOS Y PREFERENCIAS)
-    // ==========================================
+
 
     private fun cambiarModoEdicion(activar: Boolean) {
         val colorFondo = if (activar) Color.parseColor("#FFFFFF") else Color.parseColor("#F2F2F2")
@@ -153,10 +152,10 @@ class PerfilActivity : AppCompatActivity() {
         popupMenu.setOnMenuItemClickListener { item ->
             idiomaSeleccionado = item.title.toString()
             tvIdiomaSelector.text = idiomaSeleccionado
-            // Volvemos a poner el fondo gris de bloqueado
+
             tvIdiomaSelector.setBackgroundResource(R.drawable.bg_pill_selector)
 
-            // Opcional: Guardar automáticamente al cambiar
+
             guardarDatosPersonales()
             true
         }
@@ -173,7 +172,7 @@ class PerfilActivity : AppCompatActivity() {
                 if (response.isSuccessful && response.body() != null) {
                     val perfil = response.body()!!
 
-                    // 1. Rellenar campos de texto (ya lo tenías)
+
                     etNombre.setText(perfil.nombre)
                     etApellidos.setText(perfil.apellidos)
                     etCorreo.setText(perfil.correo)
@@ -182,7 +181,7 @@ class PerfilActivity : AppCompatActivity() {
                     idiomaSeleccionado = if (perfil.idioma.isNotEmpty()) perfil.idioma else "Español"
                     tvIdiomaSelector.text = idiomaSeleccionado
 
-                    // 2. NUEVO: Lógica del DNI
+
                     val ivEstadoDni = findViewById<ImageView>(R.id.ivEstadoDni)
                     val tvEstadoDni = findViewById<TextView>(R.id.tvEstadoDni)
 
@@ -226,7 +225,6 @@ class PerfilActivity : AppCompatActivity() {
                     cambiarModoEdicion(false)
                     isEditingMode = false
                 } else {
-                    // AQUÍ ESTÁ EL TRUCO: Le pedimos el código de error exacto
                     val codigoError = response.code()
                     val cuerpoError = response.errorBody()?.string()
                     Toast.makeText(this@PerfilActivity, "Error $codigoError: $cuerpoError", Toast.LENGTH_LONG).show()
@@ -239,9 +237,8 @@ class PerfilActivity : AppCompatActivity() {
         }
     }
 
-    // ==========================================
+
     // LÓGICA DE SOCKETS (DNI)
-    // ==========================================
 
     private fun subirDniPorSocket(uri: Uri) {
         lifecycleScope.launch(Dispatchers.IO) {

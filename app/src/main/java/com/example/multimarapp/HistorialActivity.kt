@@ -41,7 +41,7 @@ class HistorialActivity : AppCompatActivity() {
     private fun configurarBotonAtras() {
         val ivBackHistorial = findViewById<ImageView>(R.id.ivBackHistorial)
         ivBackHistorial.setOnClickListener {
-            finish() // Destruye esta pantalla y vuelve a EnviosActivity
+            finish()
         }
     }
 
