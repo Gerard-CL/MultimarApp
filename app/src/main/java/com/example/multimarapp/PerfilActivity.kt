@@ -52,7 +52,7 @@ class PerfilActivity : AppCompatActivity() {
     private var idiomaSeleccionado = "Español"
     private var idUsuarioActual = 5
     private val SERVER_IP = "192.168.1.X"
-    private val SERVER_PORT = 11000
+    private val SERVER_PORT = 5000
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
@@ -239,40 +239,44 @@ class PerfilActivity : AppCompatActivity() {
 
 
     // LÓGICA DE SOCKETS (DNI)
-
     private fun subirDniPorSocket(uri: Uri) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // 1. Convertir la imagen a un array de bytes
+                // 1. Convertir la imagen a bytes
                 val inputStream: InputStream? = contentResolver.openInputStream(uri)
-                val bytesArchivo = inputStream?.readBytes() ?: return@launch
+                val bytesOriginales = inputStream?.readBytes() ?: return@launch
                 inputStream.close()
 
-                // 2. Conectar al Socket de C#
+                // 2. ENCRIPTAR LOS BYTES
+                val bytesEncriptados = AESUtils.encriptar(this@PerfilActivity, bytesOriginales)
+
+                // 3. Conectar al Socket
                 val socket = Socket(SERVER_IP, SERVER_PORT)
-                val outputStream = socket.getOutputStream()
 
-                // 3. Enviar el comando inicial como String (con salto de línea para StreamReader.ReadLine())
-                val comando = "UPLOAD|$idUsuarioActual\r\n"
-                outputStream.write(comando.toByteArray(Charsets.UTF_8))
+                // Usamos DataOutputStream para enviar texto y números fácilmente
+                val dos = java.io.DataOutputStream(socket.getOutputStream())
 
-                // 4. Enviar el tamaño del archivo.
-                // MUY IMPORTANTE: C# (BinaryReader) lee los enteros en Little Endian. Java/Kotlin los envía en Big Endian por defecto.
-                val sizeBuffer = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(bytesArchivo.size).array()
-                outputStream.write(sizeBuffer)
+                // 4. Enviar el comando y el ID (con salto de línea \n)
+                val comando = "UPLOAD|$idUsuarioActual\n"
+                dos.write(comando.toByteArray(Charsets.UTF_8))
 
-                // 5. Enviar el archivo
-                outputStream.write(bytesArchivo)
-                outputStream.flush()
+                // 5. Enviar el tamaño del archivo ENCRIPTADO
+                dos.writeInt(bytesEncriptados.size)
+
+                // 6. Enviar los bytes encriptados
+                dos.write(bytesEncriptados)
+                dos.flush()
+
                 socket.close()
 
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@PerfilActivity, "DNI subido correctamente", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@PerfilActivity, "DNI subido y encriptado correctamente", Toast.LENGTH_SHORT).show()
                 }
 
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@PerfilActivity, "Error Sockets: ${e.message}", Toast.LENGTH_LONG).show()
+                    e.printStackTrace()
                 }
             }
         }
@@ -282,33 +286,28 @@ class PerfilActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val socket = Socket(SERVER_IP, SERVER_PORT)
-                val outputStream = socket.getOutputStream()
-                val inputStream = socket.getInputStream()
+                val dos = java.io.DataOutputStream(socket.getOutputStream())
+                val dis = java.io.DataInputStream(socket.getInputStream())
 
                 // 1. Enviar el comando de descarga
-                val comando = "DOWNLOAD|$idUsuarioActual\r\n"
-                outputStream.write(comando.toByteArray(Charsets.UTF_8))
-                outputStream.flush()
+                val comando = "DOWNLOAD|$idUsuarioActual\n"
+                dos.write(comando.toByteArray(Charsets.UTF_8))
+                dos.flush()
 
-                // 2. Leer el tamaño del archivo (4 bytes, Little Endian)
-                val sizeBytes = ByteArray(4)
-                var bytesLeidos = inputStream.read(sizeBytes)
-                if (bytesLeidos < 4) return@launch // Error de lectura
+                // 2. Leer el tamaño del archivo que nos envía el servidor
+                val tamanoArchivo = dis.readInt()
 
-                val tamanoArchivo = ByteBuffer.wrap(sizeBytes).order(ByteOrder.LITTLE_ENDIAN).int
+                // 3. Leer los bytes encriptados
+                val bufferEncriptado = ByteArray(tamanoArchivo)
+                dis.readFully(bufferEncriptado) // readFully se asegura de leer todos los bytes
 
-                // 3. Leer el archivo completo
-                val bufferArchivo = ByteArray(tamanoArchivo)
-                var totalLeido = 0
-                while (totalLeido < tamanoArchivo) {
-                    val leido = inputStream.read(bufferArchivo, totalLeido, tamanoArchivo - totalLeido)
-                    if (leido == -1) break
-                    totalLeido += leido
-                }
                 socket.close()
 
-                // 4. Convertir los bytes a una Imagen (Bitmap) y mostrarla en pantalla
-                val bitmap = BitmapFactory.decodeByteArray(bufferArchivo, 0, bufferArchivo.size)
+                // 4. DESENCRIPTAR LOS BYTES
+                val bytesDesencriptados = AESUtils.desencriptar(this@PerfilActivity, bufferEncriptado)
+
+                // 5. Convertir a Bitmap
+                val bitmap = BitmapFactory.decodeByteArray(bytesDesencriptados, 0, bytesDesencriptados.size)
 
                 withContext(Dispatchers.Main) {
                     val imageView = ImageView(this@PerfilActivity)
@@ -323,7 +322,8 @@ class PerfilActivity : AppCompatActivity() {
 
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@PerfilActivity, "Error al descargar DNI: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@PerfilActivity, "Error al descargar/desencriptar DNI: ${e.message}", Toast.LENGTH_LONG).show()
+                    e.printStackTrace()
                 }
             }
         }
