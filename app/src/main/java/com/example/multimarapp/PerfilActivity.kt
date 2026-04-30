@@ -51,7 +51,7 @@ class PerfilActivity : AppCompatActivity() {
     private var isEditingMode = false
     private var idiomaSeleccionado = "Español"
     private var idUsuarioActual = 5
-    private val SERVER_IP = "192.168.1.X"
+    private val SERVER_IP = "10.0.3.141"
     private val SERVER_PORT = 5000
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -242,35 +242,36 @@ class PerfilActivity : AppCompatActivity() {
     private fun subirDniPorSocket(uri: Uri) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // 1. Convertir la imagen a bytes
                 val inputStream: InputStream? = contentResolver.openInputStream(uri)
                 val bytesOriginales = inputStream?.readBytes() ?: return@launch
                 inputStream.close()
 
-                // 2. ENCRIPTAR LOS BYTES
                 val bytesEncriptados = AESUtils.encriptar(this@PerfilActivity, bytesOriginales)
 
-                // 3. Conectar al Socket
                 val socket = Socket(SERVER_IP, SERVER_PORT)
 
-                // Usamos DataOutputStream para enviar texto y números fácilmente
-                val dos = java.io.DataOutputStream(socket.getOutputStream())
+                // Obtenemos el flujo de salida crudo y creamos el Writer para el TEXTO
+                val outputStream = socket.getOutputStream()
+                val writer = java.io.OutputStreamWriter(outputStream, Charsets.UTF_8)
 
-                // 4. Enviar el comando y el ID (con salto de línea \n)
-                val comando = "UPLOAD|$idUsuarioActual\n"
-                dos.write(comando.toByteArray(Charsets.UTF_8))
+                // 1. Enviar el comando y el ID (TEXTO)
+                writer.write("UPLOAD|$idUsuarioActual\n")
+                writer.flush()
 
-                // 5. Enviar el tamaño del archivo ENCRIPTADO
-                dos.writeInt(bytesEncriptados.size)
+                // 2. Enviar el tamaño del archivo como TEXTO seguido de un salto de línea
+                writer.write("${bytesEncriptados.size}\n")
+                writer.flush()
 
-                // 6. Enviar los bytes encriptados
-                dos.write(bytesEncriptados)
-                dos.flush()
+                // 3. Enviar los bytes encriptados directamente por el OutputStream (BINARIO)
+                // IMPORTANTE: Aquí NO usamos el 'writer', usamos el 'outputStream'
+                outputStream.write(bytesEncriptados)
+                outputStream.flush()
 
                 socket.close()
 
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@PerfilActivity, "DNI subido y encriptado correctamente", Toast.LENGTH_SHORT).show()
+                    cargarDatosUsuario()
                 }
 
             } catch (e: Exception) {
@@ -286,27 +287,46 @@ class PerfilActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val socket = Socket(SERVER_IP, SERVER_PORT)
-                val dos = java.io.DataOutputStream(socket.getOutputStream())
-                val dis = java.io.DataInputStream(socket.getInputStream())
+                val inputStream = socket.getInputStream()
+                val outputStream = socket.getOutputStream()
 
-                // 1. Enviar el comando de descarga
-                val comando = "DOWNLOAD|$idUsuarioActual\n"
-                dos.write(comando.toByteArray(Charsets.UTF_8))
-                dos.flush()
+                // Usamos OutputStreamWriter para enviar el comando de texto
+                val writer = java.io.OutputStreamWriter(outputStream, Charsets.UTF_8)
 
-                // 2. Leer el tamaño del archivo que nos envía el servidor
-                val tamanoArchivo = dis.readInt()
+                // 1. Enviar el comando de descarga (TEXTO)
+                writer.write("DOWNLOAD|$idUsuarioActual\n")
+                writer.flush()
 
-                // 3. Leer los bytes encriptados
+                // 2. Leer el tamaño del archivo (Leemos texto hasta el salto de línea \n)
+                val sizeBuilder = StringBuilder()
+                while (true) {
+                    val byteRead = inputStream.read()
+                    if (byteRead == -1) break
+                    val char = byteRead.toChar()
+                    if (char == '\n') break
+                    sizeBuilder.append(char)
+                }
+                val tamanoArchivo = sizeBuilder.toString().trim().toInt()
+
+                // 3. Leer los bytes encriptados usando el método read() en bucle
                 val bufferEncriptado = ByteArray(tamanoArchivo)
-                dis.readFully(bufferEncriptado) // readFully se asegura de leer todos los bytes
+                var bytesLeidosTotales = 0
+
+                // Como no usamos DataInputStream.readFully, tenemos que hacer el bucle manual
+                while (bytesLeidosTotales < tamanoArchivo) {
+                    val bytesLeidos = inputStream.read(
+                        bufferEncriptado,
+                        bytesLeidosTotales,
+                        tamanoArchivo - bytesLeidosTotales
+                                                      )
+                    if (bytesLeidos == -1) break
+                    bytesLeidosTotales += bytesLeidos
+                }
 
                 socket.close()
 
-                // 4. DESENCRIPTAR LOS BYTES
+                // 4. DESENCRIPTAR Y MOSTRAR
                 val bytesDesencriptados = AESUtils.desencriptar(this@PerfilActivity, bufferEncriptado)
-
-                // 5. Convertir a Bitmap
                 val bitmap = BitmapFactory.decodeByteArray(bytesDesencriptados, 0, bytesDesencriptados.size)
 
                 withContext(Dispatchers.Main) {
@@ -322,7 +342,7 @@ class PerfilActivity : AppCompatActivity() {
 
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@PerfilActivity, "Error al descargar/desencriptar DNI: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@PerfilActivity, "Error al descargar DNI: ${e.message}", Toast.LENGTH_LONG).show()
                     e.printStackTrace()
                 }
             }
