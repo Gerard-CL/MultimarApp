@@ -242,38 +242,38 @@ class PerfilActivity : AppCompatActivity() {
     private fun subirDniPorSocket(uri: Uri) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // 1. Preparamos el archivo encriptado (Esto debe ser de golpe por culpa del AESUtils)
+
                 val inputStreamUri: InputStream? = contentResolver.openInputStream(uri)
                 val bytesOriginales = inputStreamUri?.readBytes() ?: return@launch
                 inputStreamUri.close()
 
                 val bytesEncriptados = AESUtils.encriptar(this@PerfilActivity, bytesOriginales)
 
+                val base64String = android.util.Base64.encodeToString(bytesEncriptados, android.util.Base64.NO_WRAP)
+
                 val socket = Socket(SERVER_IP, SERVER_PORT)
 
-                // Obtenemos el flujo de salida crudo y creamos el Writer para el TEXTO
                 val outputStream = socket.getOutputStream()
                 val writer = java.io.OutputStreamWriter(outputStream, Charsets.UTF_8)
 
-                // 1. Enviar el comando y el ID (TEXTO)
+                // Enviar el comando y el ID
                 writer.write("UPLOAD|$idUsuarioActual\n")
                 writer.flush()
 
-                // 2. Enviar el tamaño del archivo como TEXTO seguido de un salto de línea
-                writer.write("${bytesEncriptados.size}\n")
+                // Enviar el tamaño de la cadena Base64
+                writer.write("${base64String.length}\n")
                 writer.flush()
 
-                // 3. --- REQUISITO DEL PROFE: Enviament a través del socket BYTE A BYTE ---
-                // IMPORTANTE: Recorremos el array y enviamos una gota cada vez
-                for (byte in bytesEncriptados) {
-                    outputStream.write(byte.toInt())
+                // Enviament a través del socket
+                for (char in base64String) {
+                    writer.write(char.code)
                 }
-                outputStream.flush() // Soplido final para asegurar que no queda nada en el tubo
+                writer.flush()
 
                 socket.close()
 
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@PerfilActivity, "DNI subido y encriptado correctamente", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@PerfilActivity, "DNI subido correctamente", Toast.LENGTH_SHORT).show()
                     cargarDatosUsuario()
                 }
 
@@ -293,40 +293,39 @@ class PerfilActivity : AppCompatActivity() {
                 val inputStream = socket.getInputStream()
                 val outputStream = socket.getOutputStream()
 
-                // Clases recomendadas por el profe
                 val writer = java.io.OutputStreamWriter(outputStream, Charsets.UTF_8)
                 val reader = java.io.InputStreamReader(inputStream, Charsets.UTF_8)
 
-                // 1. Enviar el comando de descarga (TEXTO)
-                // 1. Enviar el comando de descarga (TEXTO)
+                // Enviar el comando de descarga
                 writer.write("DOWNLOAD|$idUsuarioActual\n")
                 writer.flush()
 
-                // 2. LEER SIN READER: Leemos directamente del tubo crudo byte a byte
+                // Leer el tamaño de la cadena Base64
                 val sizeBuilder = StringBuilder()
                 while (true) {
-                    val byteRead = inputStream.read() // <-- CAMBIO AQUÍ: Leemos un byte crudo
-                    if (byteRead == -1) break
-                    val char = byteRead.toChar()      // <-- Lo convertimos a letra
+                    val charRead = reader.read()
+                    if (charRead == -1) break
+                    val char = charRead.toChar()
                     if (char == '\n') break
                     sizeBuilder.append(char)
                 }
-                val tamanoArchivo = sizeBuilder.toString().trim().toInt()
+                val base64Size = sizeBuilder.toString().trim().toInt()
 
-                // 3. --- REQUISITO DEL PROFE: Recepció a través d'un socket BYTE A BYTE ---
-                val bufferEncriptado = ByteArray(tamanoArchivo)
-                // ... (el resto del bucle for se queda igual)
-
-                // Llenamos el array gota a gota leyendo del socket
-                for (i in 0 until tamanoArchivo) {
-                    val byteLeido = inputStream.read() // Leemos 1 gota
-                    if (byteLeido == -1) break
-                    bufferEncriptado[i] = byteLeido.toByte() // La guardamos en su posición
+                // Recepció a través d'un socket
+                val base64Builder = StringBuilder()
+                for (i in 0 until base64Size) {
+                    val charRead = reader.read()
+                    if (charRead != -1) {
+                        base64Builder.append(charRead.toChar())
+                    }
                 }
-
+                val base64Recibido = base64Builder.toString()
                 socket.close()
 
-                // 4. DESENCRIPTAR Y MOSTRAR (De golpe por culpa del AESUtils)
+                // Decodificar el texto Base64 para recuperar el Array de bytes crudos (ruido AES)
+                val bufferEncriptado = android.util.Base64.decode(base64Recibido, android.util.Base64.DEFAULT)
+
+                // 4. DESENCRIPTAR Y MOSTRAR
                 val bytesDesencriptados = AESUtils.desencriptar(this@PerfilActivity, bufferEncriptado)
                 val bitmap = BitmapFactory.decodeByteArray(bytesDesencriptados, 0, bytesDesencriptados.size)
 
@@ -335,7 +334,7 @@ class PerfilActivity : AppCompatActivity() {
                     imageView.setImageBitmap(bitmap)
 
                     AlertDialog.Builder(this@PerfilActivity)
-                        .setTitle("DNI Descargado y Desencriptado")
+                        .setTitle("DNI Descargado")
                         .setView(imageView)
                         .setPositiveButton("Cerrar", null)
                         .show()
