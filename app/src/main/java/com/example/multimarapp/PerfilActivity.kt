@@ -298,15 +298,16 @@ class PerfilActivity : AppCompatActivity() {
                 val reader = java.io.InputStreamReader(inputStream, Charsets.UTF_8)
 
                 // 1. Enviar el comando de descarga (TEXTO)
+                // 1. Enviar el comando de descarga (TEXTO)
                 writer.write("DOWNLOAD|$idUsuarioActual\n")
                 writer.flush()
 
-                // 2. Leer el tamaño del archivo (Leemos texto hasta el salto de línea \n usando el Reader)
+                // 2. LEER SIN READER: Leemos directamente del tubo crudo byte a byte
                 val sizeBuilder = StringBuilder()
                 while (true) {
-                    val charRead = reader.read()
-                    if (charRead == -1) break
-                    val char = charRead.toChar()
+                    val byteRead = inputStream.read() // <-- CAMBIO AQUÍ: Leemos un byte crudo
+                    if (byteRead == -1) break
+                    val char = byteRead.toChar()      // <-- Lo convertimos a letra
                     if (char == '\n') break
                     sizeBuilder.append(char)
                 }
@@ -314,6 +315,7 @@ class PerfilActivity : AppCompatActivity() {
 
                 // 3. --- REQUISITO DEL PROFE: Recepció a través d'un socket BYTE A BYTE ---
                 val bufferEncriptado = ByteArray(tamanoArchivo)
+                // ... (el resto del bucle for se queda igual)
 
                 // Llenamos el array gota a gota leyendo del socket
                 for (i in 0 until tamanoArchivo) {
