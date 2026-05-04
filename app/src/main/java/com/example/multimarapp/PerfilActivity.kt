@@ -51,8 +51,8 @@ class PerfilActivity : AppCompatActivity() {
     private var isEditingMode = false
     private var idiomaSeleccionado = "Español"
     private var idUsuarioActual = 5
-    private val SERVER_IP = "192.168.1.X"
-    private val SERVER_PORT = 11000
+    private val SERVER_IP = "10.0.3.141"
+    private val SERVER_PORT = 5000
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
@@ -239,40 +239,45 @@ class PerfilActivity : AppCompatActivity() {
 
 
     // LÓGICA DE SOCKETS (DNI)
-
     private fun subirDniPorSocket(uri: Uri) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // 1. Convertir la imagen a un array de bytes
                 val inputStream: InputStream? = contentResolver.openInputStream(uri)
-                val bytesArchivo = inputStream?.readBytes() ?: return@launch
+                val bytesOriginales = inputStream?.readBytes() ?: return@launch
                 inputStream.close()
 
-                // 2. Conectar al Socket de C#
+                val bytesEncriptados = AESUtils.encriptar(this@PerfilActivity, bytesOriginales)
+
                 val socket = Socket(SERVER_IP, SERVER_PORT)
+
+                // Obtenemos el flujo de salida crudo y creamos el Writer para el TEXTO
                 val outputStream = socket.getOutputStream()
+                val writer = java.io.OutputStreamWriter(outputStream, Charsets.UTF_8)
 
-                // 3. Enviar el comando inicial como String (con salto de línea para StreamReader.ReadLine())
-                val comando = "UPLOAD|$idUsuarioActual\r\n"
-                outputStream.write(comando.toByteArray(Charsets.UTF_8))
+                // 1. Enviar el comando y el ID (TEXTO)
+                writer.write("UPLOAD|$idUsuarioActual\n")
+                writer.flush()
 
-                // 4. Enviar el tamaño del archivo.
-                // MUY IMPORTANTE: C# (BinaryReader) lee los enteros en Little Endian. Java/Kotlin los envía en Big Endian por defecto.
-                val sizeBuffer = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(bytesArchivo.size).array()
-                outputStream.write(sizeBuffer)
+                // 2. Enviar el tamaño del archivo como TEXTO seguido de un salto de línea
+                writer.write("${bytesEncriptados.size}\n")
+                writer.flush()
 
-                // 5. Enviar el archivo
-                outputStream.write(bytesArchivo)
+                // 3. Enviar los bytes encriptados directamente por el OutputStream (BINARIO)
+                // IMPORTANTE: Aquí NO usamos el 'writer', usamos el 'outputStream'
+                outputStream.write(bytesEncriptados)
                 outputStream.flush()
+
                 socket.close()
 
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@PerfilActivity, "DNI subido correctamente", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@PerfilActivity, "DNI subido y encriptado correctamente", Toast.LENGTH_SHORT).show()
+                    cargarDatosUsuario()
                 }
 
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@PerfilActivity, "Error Sockets: ${e.message}", Toast.LENGTH_LONG).show()
+                    e.printStackTrace()
                 }
             }
         }
@@ -282,33 +287,47 @@ class PerfilActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val socket = Socket(SERVER_IP, SERVER_PORT)
-                val outputStream = socket.getOutputStream()
                 val inputStream = socket.getInputStream()
+                val outputStream = socket.getOutputStream()
 
-                // 1. Enviar el comando de descarga
-                val comando = "DOWNLOAD|$idUsuarioActual\r\n"
-                outputStream.write(comando.toByteArray(Charsets.UTF_8))
-                outputStream.flush()
+                // Usamos OutputStreamWriter para enviar el comando de texto
+                val writer = java.io.OutputStreamWriter(outputStream, Charsets.UTF_8)
 
-                // 2. Leer el tamaño del archivo (4 bytes, Little Endian)
-                val sizeBytes = ByteArray(4)
-                var bytesLeidos = inputStream.read(sizeBytes)
-                if (bytesLeidos < 4) return@launch // Error de lectura
+                // 1. Enviar el comando de descarga (TEXTO)
+                writer.write("DOWNLOAD|$idUsuarioActual\n")
+                writer.flush()
 
-                val tamanoArchivo = ByteBuffer.wrap(sizeBytes).order(ByteOrder.LITTLE_ENDIAN).int
-
-                // 3. Leer el archivo completo
-                val bufferArchivo = ByteArray(tamanoArchivo)
-                var totalLeido = 0
-                while (totalLeido < tamanoArchivo) {
-                    val leido = inputStream.read(bufferArchivo, totalLeido, tamanoArchivo - totalLeido)
-                    if (leido == -1) break
-                    totalLeido += leido
+                // 2. Leer el tamaño del archivo (Leemos texto hasta el salto de línea \n)
+                val sizeBuilder = StringBuilder()
+                while (true) {
+                    val byteRead = inputStream.read()
+                    if (byteRead == -1) break
+                    val char = byteRead.toChar()
+                    if (char == '\n') break
+                    sizeBuilder.append(char)
                 }
+                val tamanoArchivo = sizeBuilder.toString().trim().toInt()
+
+                // 3. Leer los bytes encriptados usando el método read() en bucle
+                val bufferEncriptado = ByteArray(tamanoArchivo)
+                var bytesLeidosTotales = 0
+
+                // Como no usamos DataInputStream.readFully, tenemos que hacer el bucle manual
+                while (bytesLeidosTotales < tamanoArchivo) {
+                    val bytesLeidos = inputStream.read(
+                        bufferEncriptado,
+                        bytesLeidosTotales,
+                        tamanoArchivo - bytesLeidosTotales
+                                                      )
+                    if (bytesLeidos == -1) break
+                    bytesLeidosTotales += bytesLeidos
+                }
+
                 socket.close()
 
-                // 4. Convertir los bytes a una Imagen (Bitmap) y mostrarla en pantalla
-                val bitmap = BitmapFactory.decodeByteArray(bufferArchivo, 0, bufferArchivo.size)
+                // 4. DESENCRIPTAR Y MOSTRAR
+                val bytesDesencriptados = AESUtils.desencriptar(this@PerfilActivity, bufferEncriptado)
+                val bitmap = BitmapFactory.decodeByteArray(bytesDesencriptados, 0, bytesDesencriptados.size)
 
                 withContext(Dispatchers.Main) {
                     val imageView = ImageView(this@PerfilActivity)
@@ -324,6 +343,7 @@ class PerfilActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@PerfilActivity, "Error al descargar DNI: ${e.message}", Toast.LENGTH_LONG).show()
+                    e.printStackTrace()
                 }
             }
         }

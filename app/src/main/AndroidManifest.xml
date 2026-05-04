@@ -27,7 +27,7 @@
             android:name=".DetalleEnviosActivity"
             android:exported="false" />
         <activity
-            android:name=".PerfilActivity"
+            android:name=".LoginActivity"
             android:exported="false" />
         <activity
             android:name=".HistorialActivity"
@@ -45,7 +45,7 @@
             android:name=".InicioAgenteActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".PerfilActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
