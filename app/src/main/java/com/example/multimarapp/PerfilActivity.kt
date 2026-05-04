@@ -242,9 +242,10 @@ class PerfilActivity : AppCompatActivity() {
     private fun subirDniPorSocket(uri: Uri) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val inputStream: InputStream? = contentResolver.openInputStream(uri)
-                val bytesOriginales = inputStream?.readBytes() ?: return@launch
-                inputStream.close()
+                // 1. Preparamos el archivo encriptado (Esto debe ser de golpe por culpa del AESUtils)
+                val inputStreamUri: InputStream? = contentResolver.openInputStream(uri)
+                val bytesOriginales = inputStreamUri?.readBytes() ?: return@launch
+                inputStreamUri.close()
 
                 val bytesEncriptados = AESUtils.encriptar(this@PerfilActivity, bytesOriginales)
 
@@ -262,10 +263,12 @@ class PerfilActivity : AppCompatActivity() {
                 writer.write("${bytesEncriptados.size}\n")
                 writer.flush()
 
-                // 3. Enviar los bytes encriptados directamente por el OutputStream (BINARIO)
-                // IMPORTANTE: Aquí NO usamos el 'writer', usamos el 'outputStream'
-                outputStream.write(bytesEncriptados)
-                outputStream.flush()
+                // 3. --- REQUISITO DEL PROFE: Enviament a través del socket BYTE A BYTE ---
+                // IMPORTANTE: Recorremos el array y enviamos una gota cada vez
+                for (byte in bytesEncriptados) {
+                    outputStream.write(byte.toInt())
+                }
+                outputStream.flush() // Soplido final para asegurar que no queda nada en el tubo
 
                 socket.close()
 
@@ -290,42 +293,38 @@ class PerfilActivity : AppCompatActivity() {
                 val inputStream = socket.getInputStream()
                 val outputStream = socket.getOutputStream()
 
-                // Usamos OutputStreamWriter para enviar el comando de texto
+                // Clases recomendadas por el profe
                 val writer = java.io.OutputStreamWriter(outputStream, Charsets.UTF_8)
+                val reader = java.io.InputStreamReader(inputStream, Charsets.UTF_8)
 
                 // 1. Enviar el comando de descarga (TEXTO)
                 writer.write("DOWNLOAD|$idUsuarioActual\n")
                 writer.flush()
 
-                // 2. Leer el tamaño del archivo (Leemos texto hasta el salto de línea \n)
+                // 2. Leer el tamaño del archivo (Leemos texto hasta el salto de línea \n usando el Reader)
                 val sizeBuilder = StringBuilder()
                 while (true) {
-                    val byteRead = inputStream.read()
-                    if (byteRead == -1) break
-                    val char = byteRead.toChar()
+                    val charRead = reader.read()
+                    if (charRead == -1) break
+                    val char = charRead.toChar()
                     if (char == '\n') break
                     sizeBuilder.append(char)
                 }
                 val tamanoArchivo = sizeBuilder.toString().trim().toInt()
 
-                // 3. Leer los bytes encriptados usando el método read() en bucle
+                // 3. --- REQUISITO DEL PROFE: Recepció a través d'un socket BYTE A BYTE ---
                 val bufferEncriptado = ByteArray(tamanoArchivo)
-                var bytesLeidosTotales = 0
 
-                // Como no usamos DataInputStream.readFully, tenemos que hacer el bucle manual
-                while (bytesLeidosTotales < tamanoArchivo) {
-                    val bytesLeidos = inputStream.read(
-                        bufferEncriptado,
-                        bytesLeidosTotales,
-                        tamanoArchivo - bytesLeidosTotales
-                                                      )
-                    if (bytesLeidos == -1) break
-                    bytesLeidosTotales += bytesLeidos
+                // Llenamos el array gota a gota leyendo del socket
+                for (i in 0 until tamanoArchivo) {
+                    val byteLeido = inputStream.read() // Leemos 1 gota
+                    if (byteLeido == -1) break
+                    bufferEncriptado[i] = byteLeido.toByte() // La guardamos en su posición
                 }
 
                 socket.close()
 
-                // 4. DESENCRIPTAR Y MOSTRAR
+                // 4. DESENCRIPTAR Y MOSTRAR (De golpe por culpa del AESUtils)
                 val bytesDesencriptados = AESUtils.desencriptar(this@PerfilActivity, bufferEncriptado)
                 val bitmap = BitmapFactory.decodeByteArray(bytesDesencriptados, 0, bytesDesencriptados.size)
 

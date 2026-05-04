@@ -11,7 +11,7 @@ object AESUtils {
     private const val PREFS_NAME = "AppPreferenciasDNI"
     private const val KEY_ALIAS = "ClaveSecretaAES"
 
-    // Obtiene la clave existente o genera una nueva si no existe
+    // Obtiene la llave existente o genera una nueva si no existe
     private fun getOrCreateKey(context: Context): SecretKey {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val keyString = prefs.getString(KEY_ALIAS, null)
