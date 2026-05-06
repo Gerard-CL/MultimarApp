@@ -50,8 +50,9 @@ class PerfilActivity : AppCompatActivity() {
     // --- Variables de Datos y Sockets ---
     private var isEditingMode = false
     private var idiomaSeleccionado = "Español"
-    private var idUsuarioActual = 5
-    private val SERVER_IP = "10.0.3.141"
+    private var idUsuarioActual = 4
+    private var estadoActualDni = false
+    private val SERVER_IP = "172.20.10.2"
     private val SERVER_PORT = 5000
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -172,6 +173,7 @@ class PerfilActivity : AppCompatActivity() {
                 if (response.isSuccessful && response.body() != null) {
                     val perfil = response.body()!!
 
+                    estadoActualDni = perfil.dniSubido
 
                     etNombre.setText(perfil.nombre)
                     etApellidos.setText(perfil.apellidos)
@@ -214,7 +216,7 @@ class PerfilActivity : AppCompatActivity() {
             correo = etCorreo.text.toString(),
             telefono = etTelefono.text.toString(),
             idioma = idiomaSeleccionado,
-            dniSubido = false
+            dniSubido = estadoActualDni
         )
 
         lifecycleScope.launch {
@@ -256,15 +258,15 @@ class PerfilActivity : AppCompatActivity() {
                 val outputStream = socket.getOutputStream()
                 val writer = java.io.OutputStreamWriter(outputStream, Charsets.UTF_8)
 
-                // Enviar el comando y el ID
+                // Primer Envió (Enviar el comando y el ID)
                 writer.write("UPLOAD|$idUsuarioActual\n")
                 writer.flush()
 
-                // Enviar el tamaño de la cadena Base64
+                // Segundo Envió (Enviar el tamaño de la cadena Base64)
                 writer.write("${base64String.length}\n")
                 writer.flush()
 
-                // Enviament a través del socket
+                // Tercer Envió (Enviament a través del socket)
                 for (char in base64String) {
                     writer.write(char.code)
                 }
@@ -274,7 +276,16 @@ class PerfilActivity : AppCompatActivity() {
 
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@PerfilActivity, "DNI subido correctamente", Toast.LENGTH_SHORT).show()
-                    cargarDatosUsuario()
+
+                    val ivEstadoDni = findViewById<ImageView>(R.id.ivEstadoDni)
+                    val tvEstadoDni = findViewById<TextView>(R.id.tvEstadoDni)
+
+                    ivEstadoDni.setImageResource(R.drawable.ic_check_verde)
+                    tvEstadoDni.text = "DNI VERIFICADO"
+                    tvEstadoDni.setTextColor(android.graphics.Color.parseColor("#4CAF50"))
+
+                    estadoActualDni = true
+
                 }
 
             } catch (e: Exception) {
@@ -296,7 +307,7 @@ class PerfilActivity : AppCompatActivity() {
                 val writer = java.io.OutputStreamWriter(outputStream, Charsets.UTF_8)
                 val reader = java.io.InputStreamReader(inputStream, Charsets.UTF_8)
 
-                // Enviar el comando de descarga
+                // Enviar el comando de descarga y el ID
                 writer.write("DOWNLOAD|$idUsuarioActual\n")
                 writer.flush()
 
@@ -311,7 +322,7 @@ class PerfilActivity : AppCompatActivity() {
                 }
                 val base64Size = sizeBuilder.toString().trim().toInt()
 
-                // Recepció a través d'un socket
+                // Leer contenido (Base64)
                 val base64Builder = StringBuilder()
                 for (i in 0 until base64Size) {
                     val charRead = reader.read()
@@ -322,10 +333,9 @@ class PerfilActivity : AppCompatActivity() {
                 val base64Recibido = base64Builder.toString()
                 socket.close()
 
-                // Decodificar el texto Base64 para recuperar el Array de bytes crudos (ruido AES)
+                // Decodificar el texto Base64
                 val bufferEncriptado = android.util.Base64.decode(base64Recibido, android.util.Base64.DEFAULT)
 
-                // 4. DESENCRIPTAR Y MOSTRAR
                 val bytesDesencriptados = AESUtils.desencriptar(this@PerfilActivity, bufferEncriptado)
                 val bitmap = BitmapFactory.decodeByteArray(bytesDesencriptados, 0, bytesDesencriptados.size)
 
